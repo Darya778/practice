@@ -57,6 +57,15 @@ def decompress_Z_files():
                 file_path = os.path.join(root, file)
                 subprocess.run(['uncompress', file_path])
 
+def convert_files():
+    for root, dirs, files in os.walk(save_path):
+        for file in files:
+            if file.endswith('.crx') or file.endswith('.24d'):
+                file_path = os.path.join(root, file)
+                subprocess.run(['/home/dasha/wotiwan/CRX2RNX', file_path])
+                os.remove(file_path)
+                print("done!")
+
 schedule.every(1).day.at("15:30").do(download)
 
 while True:
