@@ -79,15 +79,16 @@ def create_directory_structure():
     for root, dirs, files in os.walk(save_path):
         print(dirs)
         for file in files:
-            if file.endswith('.rnx') or file.endswith('.24o'):
-                if file.endswith('.rnx'):
-                    site_name = file.split('_')[0]
-                else:
-                    site_name = file.split('.')[0]
-                site_dir = os.path.join(target_dir, site_name)
-                if not os.path.exists(site_dir):
-                    os.makedirs(site_dir)
-                shutil.move(os.path.join(root, file), os.path.join(site_dir, file))
+            if root == save_path:
+                if file.endswith('.rnx') or file.endswith('.24o'):
+                    if file.endswith('.rnx'):
+                        site_name = file.split('_')[0]
+                    else:
+                        site_name = file.split('.')[0]
+                    site_dir = os.path.join(target_dir, site_name)
+                    if not os.path.exists(site_dir):
+                        os.makedirs(site_dir)
+                    shutil.move(os.path.join(root, file), os.path.join(site_dir, file))
 
 
 def main():
