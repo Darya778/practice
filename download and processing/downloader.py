@@ -66,7 +66,15 @@ def convert_files():
                 os.remove(file_path)
                 print("done!")
 
-schedule.every(1).day.at("15:30").do(download)
+def main():
+    path = download()
+    unpack_archive(path)
+    decompress_gz_files()
+    decompress_Z_files()
+    convert_files()
+    print("Done! Going to sleep.")
+
+schedule.every(1).day.at("14:30").do(download)
 
 while True:
     schedule.run_pending()
