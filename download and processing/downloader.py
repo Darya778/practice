@@ -6,7 +6,7 @@ import requests
 import zipfile
 import subprocess
 import gzip
-
+import shutil
 
 save_path = "/home/dasha/wotiwan/archive"
 
