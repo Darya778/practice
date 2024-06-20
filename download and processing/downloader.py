@@ -3,6 +3,13 @@ from datetime import datetime, timedelta
 import schedule
 import sys
 import requests
+import zipfile
+
+save_path = "/home/dasha/wotiwan/archive"
+
+def unpack_archive(filepath):
+    with zipfile.ZipFile(filepath, 'r') as zip_ref:
+        zip_ref.extractall(save_path)
 
 def download():   
     date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
