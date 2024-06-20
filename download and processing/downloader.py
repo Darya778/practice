@@ -4,12 +4,27 @@ import schedule
 import sys
 import requests
 import zipfile
+import subprocess
+import gzip
+
 
 save_path = "/home/dasha/wotiwan/archive"
 
 def unpack_archive(filepath):
     with zipfile.ZipFile(filepath, 'r') as zip_ref:
         zip_ref.extractall(save_path)
+
+
+def decompress_gz_files():
+    for root, dirs, files in os.walk(save_path):
+        for file in files:
+            if file.endswith('.gz'):
+                file_path = os.path.join(root, file)
+                with gzip.open(file_path, 'rb') as f_in:
+                    with open(file_path[:-3], 'wb') as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                os.remove(file_path)
+
 
 def download():   
     date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
