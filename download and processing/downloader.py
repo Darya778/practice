@@ -24,6 +24,8 @@ def download():
                 done = int(50 * dl / total_length)
                 sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
                 sys.stdout.flush()
+    return file_name
+
 
 schedule.every(1).day.at("15:30").do(download)
 
