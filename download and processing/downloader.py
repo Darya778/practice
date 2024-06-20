@@ -26,6 +26,14 @@ def decompress_gz_files():
                 os.remove(file_path)
 
 
+def decompress_Z_files():
+    for root, dirs, files in os.walk(save_path):
+        for file in files:
+            if file.endswith('.Z'):
+                file_path = os.path.join(root, file)
+                subprocess.run(['uncompress', file_path])
+
+
 def download():   
     date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
     link = f"https://api.simurg.space/datafiles/map_files?date={date}"
