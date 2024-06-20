@@ -66,13 +66,39 @@ def convert_files():
                 os.remove(file_path)
                 print("done!")
 
+
+def create_directory_structure():
+    date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
+    year = date.split('-')[0]
+    day_of_year = datetime.strptime(date, '%Y-%m-%d').timetuple().tm_yday
+    target_dir = os.path.join(save_path, year, f'{day_of_year:03d}')
+
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    for root, dirs, files in os.walk(save_path):
+        print(dirs)
+        for file in files:
+            if file.endswith('.rnx') or file.endswith('.24o'):
+                if file.endswith('.rnx'):
+                    site_name = file.split('_')[0]
+                else:
+                    site_name = file.split('.')[0]
+                site_dir = os.path.join(target_dir, site_name)
+                if not os.path.exists(site_dir):
+                    os.makedirs(site_dir)
+                shutil.move(os.path.join(root, file), os.path.join(site_dir, file))
+
+
 def main():
     path = download()
     unpack_archive(path)
     decompress_gz_files()
     decompress_Z_files()
     convert_files()
+    create_directory_structure()
     print("Done! Going to sleep.")
+
 
 schedule.every(1).day.at("14:30").do(download)
 
