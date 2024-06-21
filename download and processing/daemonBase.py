@@ -5,10 +5,11 @@ import time
 receiver_name = "PENC00HUN"
 lib_path = "/home/dasha/wotiwan/archive"
 data_dict = {}
+data_dict_old = {}
 
 
 def get_dict():
-    date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
+    date = (datetime.now() - timedelta(days=6)).strftime('%Y-%m-%d')
     year = date.split('-')[0]
     day_of_year = datetime.strptime(date, '%Y-%m-%d').timetuple().tm_yday
     target_dir = f'/{lib_path}/{year}/{day_of_year:03d}/{receiver_name}'
@@ -31,11 +32,20 @@ def get_dict():
 
 
 get_dict()
+old_dict_ready = False
 
 while True:
     date_now = str(datetime.now().strftime('%H:%M:%S'))
-    if date_now in data_dict:
+    if date_now == "23:00:00":
+        data_dict_old = data_dict.copy()
+        get_dict()
+        old_dict_ready = True
+    if date_now in data_dict and date_now < "23:30:00":
         for key, value in data_dict.items():
+            if key == date_now:
+                print(value)
+    elif date_now in data_dict and date_now >= "23:30:00" and old_dict_ready:
+        for key, value in data_dict_old.items():
             if key == date_now:
                 print(value)
     time.sleep(1)
