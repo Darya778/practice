@@ -9,11 +9,12 @@ import subprocess
 import gzip
 import shutil
 
+abs_path = "/home/dasha/wotiwan/"
 
 def download():
     date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
     link = f"https://api.simurg.space/datafiles/map_files?date={date}"
-    file_name = f"{date}.zip"
+    file_name = f"{abs_path}{date}.zip"
     with open(file_name, "wb") as f:
         print("Downloading %s" % file_name)
         response = requests.get(link, stream=True)
@@ -57,7 +58,7 @@ def decompress_Z_files():
         for file in files:
             if file.endswith('.Z'):
                 file_path = os.path.join(root, file)
-                subprocess.run(['uncompress', file_path])
+                subprocess.run(['/usr/bin/uncompress', file_path])
 
 
 def convert_files():
@@ -103,11 +104,9 @@ def main():
     create_directory_structure()
     print("Done! Going to sleep.")
 
-
-schedule.every(1).day.at("14:30").do(main)
+schedule.every(1).day.at("22:30").do(main)
 
 
 while True:
     schedule.run_pending()
     time.sleep(1)
-
