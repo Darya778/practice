@@ -14,7 +14,7 @@ ExecStart=/home/dasha/wotiwan/venv/bin/python /home/dasha/wotiwan/downloader.py
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs
-Environment="PATH=/home/dasha/wotiwan/venv/bin"
+Environment="PATH=/usr/bin:/home/dasha/wotiwan/venv/bin"
 
 # Automatically restart the service if it crashes
 Restart=on-failure
