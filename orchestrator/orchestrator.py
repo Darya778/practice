@@ -10,9 +10,14 @@ for i in daemons:
 
 def start_services():
     for service in services:
-        subprocess.run(["sudo", "systemctl", "enable", service], check=True)
         subprocess.run(["sudo", "systemctl", "start", service], check=True)
         print(f"Started {service}")
 
 
-start_services()
+def stop_services():
+    for service in services:
+        subprocess.run(["sudo", "systemctl", "stop", service], check=True)
+        print(f"Stopped {service}")
+
+
+stop_services()
