@@ -1,0 +1,81 @@
+from datetime import datetime, timedelta
+from gnss_tec import rnx
+import os
+import paho.mqtt.client as mqtt
+import time
+import copy
+
+
+lib_path = "/home/dasha/wotiwan/archive"
+receiver_name = "{service_name}"
+
+
+def get_data(receiver_name, time_dif):
+    data_dict = {{}}
+    date = (datetime.now() - timedelta(days=6 - time_dif)).strftime('%Y-%m-%d')
+    year = date.split('-')[0]
+    day_of_year = datetime.strptime(date, '%Y-%m-%d').timetuple().tm_yday
+    target_dir = f'{{lib_path}}/{{year}}/{{day_of_year:03d}}/{{receiver_name}}'
+
+    files = [f for f in os.listdir(target_dir) if os.path.isfile(os.path.join(target_dir, f))]
+    file_name = files[0]  # Предполагается, что файл один
+
+    with open(f'{{target_dir}}/{{file_name}}') as obs_file:
+        reader = rnx(obs_file)
+        for tec in reader:
+            time_key = str(tec.timestamp).split(' ')[1]
+            tec_info = '{{}} {{}}: {{}} {{}}'.format(
+                tec.timestamp,
+                tec.satellite,
+                tec.phase_tec,
+                tec.p_range_tec,
+            )
+            if time_key not in data_dict:
+                data_dict[time_key] = []
+            data_dict[time_key].append(tec_info)
+
+    return data_dict
+
+data_dict = get_data(receiver_name, 0)
+data_dict_old = {{}}
+new_dict_ready = False
+
+try:
+    mqtt_client = mqtt.Client()
+    mqtt_client.connect("localhost", 1884, 60)
+    print(f"Connected to MQTT broker at localhost:1884")
+except ConnectionError as e:
+    print(f"Failed to connect to MQTT broker: {{e}}")
+    exit(1)
+
+
+while True:
+    try:
+        date_now = str(datetime.now().strftime('%H:%M:%S'))
+
+        if date_now >= "23:00:00" and not new_dict_ready:
+            data_dict_old = copy.deepcopy(data_dict)
+            data_dict = get_data(receiver_name, 1)
+            new_dict_ready = True
+            print("Switched to new data set")
+
+        if date_now in data_dict and date_now < "23:00:00":
+            new_dict_ready = False
+            for key, value in data_dict.items():
+                if key == date_now:
+                    for msg in value:
+                        mqtt_client.publish(receiver_name, msg)
+                    break
+
+        elif date_now in data_dict_old and date_now >= "23:00:00":
+            for key, value in data_dict_old.items():
+                if key == date_now:
+                    for msg in value:
+                        mqtt_client.publish(receiver_name, msg)
+                    break
+
+        time.sleep(1)
+
+    except Exception as e:
+        print(f"Error occurred: {{e}}")
+

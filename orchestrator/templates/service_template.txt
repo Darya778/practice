@@ -1,0 +1,14 @@
+[Unit]
+Description=MQTT Daemon Service
+After=network.target
+
+[Service]
+ExecStart=/home/dasha/wotiwan/venv/bin/python /home/dasha/wotiwan/orchestrator/daemons/{service_name}.py
+Environment="PATH=/usr/bin:/home/dasha/wotiwan/venv/bin"
+Restart=on-failure
+User=dasha
+Group=dasha
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
