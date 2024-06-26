@@ -1,6 +1,8 @@
 import subprocess
 import os
+import time
 import copy
+import schedule
 from datetime import datetime
 
 daemons_file = "daemons_to_load.txt"
@@ -68,6 +70,43 @@ def check_all_services():
         else:
             print(f"Service {service} is stopped!")
 
+def update_services():
+    global services
+    global old_services
+    new_services = load_services(daemons_file)
+    for service in new_services:
+        if service not in old_services:
+            create_service_file(service)
+            create_python_file(service)
+            subprocess.run(["sudo", "systemctl", "daemon-reload"], check=True)
+            subprocess.run(["sudo", "systemctl", "enable", f"/home/dasha/wotiwan/orchestrator/daemon_services/{service}.service"], check=True)
+            subprocess.run(["sudo", "systemctl", "start", service], check=True)
+            if check_service_status(service):
+                print(f"Successfully started {service}")
+            else:
+                print(f"Failed to start {service}")
+    old_services = copy.deepcopy(new_services)
+
+def remove_old_services():
+    global services
+    global old_services
+    new_services = load_services(daemons_file)
+    for service in old_services:
+        if service not in new_services:
+            subprocess.run(["sudo", "systemctl", "stop", service], check=True)
+            subprocess.run(["sudo", "systemctl", "disable", service], check=True)
+            service_file_path = f"/home/dasha/wotiwan/orchestrator/daemon_services/{service}.service"
+            if os.path.exists(service_file_path):
+                os.remove(service_file_path)
+            python_file_path = f"/home/dasha/wotiwan/orchestrator/daemons/{service}.py"
+            if os.path.exists(python_file_path):
+                os.remove(python_file_path)
+            print(f"Stopped and removed {service}")
+    old_services = copy.deepcopy(new_services)
+
+
+schedule.every().day.at("23:30").do(update_services)
+schedule.every().day.at("00:00").do(remove_old_services)
 
 if user_action == "1":
     start_services()
