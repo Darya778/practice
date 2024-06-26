@@ -113,7 +113,7 @@ def main():
     print("Done! Going to sleep.")
 
 
-schedule.every(1).day.at("22:30").do(main)
+schedule.every(1).day.at("18:00").do(main)
 
 
 while True:
