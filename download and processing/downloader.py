@@ -11,6 +11,10 @@ import shutil
 
 abs_path = "/home/dasha/wotiwan/"
 
+sites_list = []
+daemons_path = "/home/dasha/wotiwan/orchestrator"
+daemons_list = open(f"{daemons_path}/daemons_to_load.txt", "w")
+
 def download():
     date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
     link = f"https://api.simurg.space/datafiles/map_files?date={date}"
@@ -87,8 +91,10 @@ def create_directory_structure():
                 if file.endswith('.rnx') or file.endswith('.24o'):
                     if file.endswith('.rnx'):
                         site_name = file.split('_')[0]
+                        sites_list.append(site_name)
                     else:
                         site_name = file.split('.')[0]
+                        sites_list.append(site_name)
                     site_dir = os.path.join(target_dir, site_name)
                     if not os.path.exists(site_dir):
                         os.makedirs(site_dir)
@@ -102,7 +108,10 @@ def main():
     decompress_Z_files()
     convert_files()
     create_directory_structure()
+    for i in sites_list:
+        daemons_list.write(i + '\n')
     print("Done! Going to sleep.")
+
 
 schedule.every(1).day.at("22:30").do(main)
 
@@ -110,3 +119,4 @@ schedule.every(1).day.at("22:30").do(main)
 while True:
     schedule.run_pending()
     time.sleep(1)
+
