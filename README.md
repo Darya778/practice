@@ -25,16 +25,17 @@
 
 1. Запустите сервис загрузки данных (находимся в основной папке с проектом `/home/dasha/wotiwan`): 
 ```
+   cd download and processing
    sudo systemctl start downloader_service.service
 ```
    
-3. Запустите брокер сообщений:
+3. Запустите брокер сообщений (находимся в основной папке с проектом `/home/dasha/wotiwan`):
 ```
    cd broker
    ./start_broker.sh
 ```
    
-3. Запустите оркестратор:
+3. Запустите оркестратор (находимся в основной папке с проектом `/home/dasha/wotiwan`):
 ```
    cd orchestrator
    python orchestrator.py
