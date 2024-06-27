@@ -1,16 +1,29 @@
 import paho.mqtt.client as mqtt
 import requests
 
+message_timer = None
+
+
+def reset_timer():
+    global message_timer
+    if message_timer:
+        message_timer.cancel()
+    message_timer = threading.Timer(60, on_timeout)
+    message_timer.start()
+
+
 def on_message(client, userdata, message):
     print(f"Received message on topic {message.topic}: {message.payload.decode()}")
+    reset_timer()
 
 def subscribe_to_topics(topics):
     mqtt_client = mqtt.Client()
     mqtt_client.on_message = on_message
     mqtt_client.connect("localhost", 1884, 60)
     mqtt_client.subscribe([(topic, 0) for topic in topics])
+    reset_timer()  # Запуск таймера при подключении к теме
     mqtt_client.loop_forever()
-
+    
 def get_receivers():
     try:
         url = "http://localhost:8010/receivers/"
