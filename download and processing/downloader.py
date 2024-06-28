@@ -31,14 +31,14 @@ def download():
     total_length=0
     with open(file_name, "ab") as f:
         print("Скачивание %s" % file_name)
-        log_message("info", "200 OK Скачивание %s" % file_name)
+        log_message("info", "200 OK Скачивание %s" % file_name, "downloader.py")
         try:
             response = requests.get(link, headers=headers, stream=True)
             response.raise_for_status()
 
             if response.status_code == 416:
                 print("Файл уже полностью загружен.")
-                log_message("info", "200 OK Файл %s загружен." % file_name)
+                log_message("info", "200 OK Файл %s загружен." % file_name, "downloader.py")
                 return file_name
 
             total_length = response.headers.get('content-length')
@@ -58,7 +58,7 @@ def download():
 
         except requests.exceptions.RequestException as e:
             print(f"Ошибка при загрузке: {e}")
-            log_message("error", f"Ошибка при загрузке: {e}")
+            log_message("error", f"Ошибка при загрузке: {e}", "downloader.py")
             return None
             
     if os.path.getsize(file_name) == total_length:
@@ -79,7 +79,7 @@ def download_until_complete():
 def unpack_archive(filepath):
     with zipfile.ZipFile(filepath, 'r') as zip_ref:
         zip_ref.extractall(save_path)
-        log_message("info", "200 OK Архив распакован.")
+        log_message("info", "200 OK Архив распакован.", "downloader.py")
 
 
 def decompress_gz_files():
@@ -90,7 +90,7 @@ def decompress_gz_files():
                 with gzip.open(file_path, 'rb') as f_in:
                     with open(file_path[:-3], 'wb') as f_out:
                         shutil.copyfileobj(f_in, f_out)
-                        log_message("info", "200 OK Файлы gz распакованы.")
+                        log_message("info", "200 OK Файлы gz распакованы.", "downloader.py")
                 os.remove(file_path)
 
 
@@ -100,7 +100,7 @@ def decompress_Z_files():
             if file.endswith('.Z'):
                 file_path = os.path.join(root, file)
                 subprocess.run(['/usr/bin/uncompress', file_path])
-                log_message("info", "200 OK Файлы Z распакованы.")
+                log_message("info", "200 OK Файлы Z распакованы.", "downloader.py")
 
 
 def convert_files():
@@ -111,7 +111,7 @@ def convert_files():
                 subprocess.run(['/home/dasha/wotiwan/CRX2RNX', file_path])
                 os.remove(file_path)
                 print("done!")
-                log_message("info", "200 OK Файлы конвертированы в форматы rnx и 24o.")
+                log_message("info", "200 OK Файлы конвертированы в форматы rnx и 24o.", "downloader.py")
 
 def create_directory_structure():
     date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
@@ -121,7 +121,7 @@ def create_directory_structure():
 
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
-        log_message("info", "200 OK Создана папка %s" % target_dir)
+        log_message("info", "200 OK Создана папка %s" % target_dir, "downloader.py")
 
     for root, dirs, files in os.walk(save_path):
         print(dirs)
@@ -138,7 +138,7 @@ def create_directory_structure():
                     if not os.path.exists(site_dir):
                         os.makedirs(site_dir)
                     shutil.move(os.path.join(root, file), os.path.join(site_dir, file))
-        log_message("info", "200 OK Все файлы распределены по папкам.")
+        log_message("info", "200 OK Все файлы распределены по папкам.", "downloader.py")
 
 
 def get_first_level_directories(time_dif):
@@ -151,7 +151,7 @@ def get_first_level_directories(time_dif):
         return directories
     except Exception as e:
         print(f"Ошибка: {e}")
-        log_message("error", "Ошибка: {e}")
+        log_message("error", "Ошибка: {e}", "downloader.py")
         return []
 
                                                                                 
