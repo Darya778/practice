@@ -1,5 +1,7 @@
 import sys
-sys.path.insert(1, '/home/dasha/wotiwan/log')
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, os.path.join(current_dir, '../log'))
 import time
 from datetime import datetime, timedelta
 import schedule
