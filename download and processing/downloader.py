@@ -12,21 +12,20 @@ import gzip
 import shutil
 
 abs_path = "/home/dasha/wotiwan/"
-
+save_path = "/home/dasha/wotiwan/archive"
 sites_list = []
-daemons_path = "/home/dasha/wotiwan/orchestrator"
 
 def download():
     date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
     link = f"https://api.simurg.space/datafiles/map_files?date={date}"
     file_name = f"{abs_path}{date}.zip"
-     headers = {}
+    headers = {}
     if os.path.exists(file_name):
         current_size = os.path.getsize(file_name)
         headers['Range'] = f'bytes={current_size}-'
     else:
         current_size = 0
-    
+    total_length=0
     with open(file_name, "ab") as f:
         print("Скачивание %s" % file_name)
         log_message("info", "200 OK Скачивание %s" % file_name)
@@ -58,13 +57,21 @@ def download():
             print(f"Ошибка при загрузке: {e}")
             log_message("error", f"Ошибка при загрузке: {e}")
             return None
+            
+    if os.path.getsize(file_name) == total_length:
+        print("Файл загружен полностью.")
+        return file_name
+    else:
+        print("Файл не загружен полностью, повторная попытка.")
+        return None
 
-    return file_name
-
-
-
-save_path = "/home/dasha/wotiwan/archive"
-
+def download_until_complete():
+    while True:
+        path = download()
+        if path:
+            return path
+        print("Повторная попытка загрузки...")
+        time.sleep(10)  # Wait a bit before retrying
 
 def unpack_archive(filepath):
     with zipfile.ZipFile(filepath, 'r') as zip_ref:
@@ -146,21 +153,55 @@ def get_first_level_directories(time_dif):
 
                                                                                 
 def main():
-    path = download()
+    path = download_until_complete()
     unpack_archive(path)
     decompress_gz_files()
     decompress_Z_files()
     convert_files()
     create_directory_structure()
+    directories = get_first_level_directories(1)
     for i in sites_list:
         daemons_list.write(i + '\n')
     print("Done! Going to sleep.")
 
+        
+def ensure_download_complete():
+    date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
+    file_name = f"{abs_path}{date}.zip"
+    if os.path.exists(file_name):
+        current_size = os.path.getsize(file_name)
+        link = f"https://api.simurg.space/datafiles/map_files?date={date}"
+        try:
+            response = requests.head(link)
+            response.raise_for_status()
+            total_length = response.headers.get('content-length')
+            if total_length is not None:
+                total_length = int(total_length)
+                if current_size >= total_length:
+                    print("Файл загружен полностью.")
+                    return True
+                else:
+                    print(f"Файл не загружен полностью: {current_size}/{total_length}")
+        except requests.exceptions.RequestException as e:
+            print(f"Ошибка при проверке: {e}")
+    else:
+        print("Файл не существует.")
+    return False
 
-schedule.every(1).day.at("18:00").do(main)
+def run_scheduled_task():
+    if ensure_download_complete():
+        main()
+    else:
+        print("Загрузка не завершена, повторная попытка.")
+        download_until_complete()
+        main()
 
+schedule.every(1).day.at("18:00").do(run_scheduled_task)
 
 while True:
     schedule.run_pending()
+    if not ensure_download_complete():
+        print("Загрузка не завершена, повторная попытка.")
+        download_until_complete()
     time.sleep(1)
 
