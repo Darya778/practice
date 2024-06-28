@@ -49,7 +49,9 @@ def start_services():
         subprocess.run(["sudo", "systemctl", "start", service], check=True)
         if check_service_status(service):
             print(f"Successfully started {service}")
+            log_message("info", f"200 OK Successfully started {service}")
         else:
+            log_message("error", f"Failed to start {service}")
             print(f"Failed to start {service}")
         time.sleep(2)
 
@@ -63,13 +65,16 @@ def stop_services():
         python_file_path = f"/home/dasha/wotiwan/orchestrator/daemons/{service}.py"
         if os.path.exists(python_file_path):
             os.remove(python_file_path)
+        log_message("info", f"200 OK Stopped and removed {service}")
         print(f"Stopped and removed {service}")
 
 def check_all_services():
     for service in services:
         if check_service_status(service):
             print(f"Service {service} is running")
+            log_message("info", f"200 OK Service {service} is running")
         else:
+            log_message("warning", f"Service {service} is stopped!")
             print(f"Service {service} is stopped!")
 
 def update_services():
@@ -84,8 +89,10 @@ def update_services():
             subprocess.run(["sudo", "systemctl", "enable", f"/home/dasha/wotiwan/orchestrator/daemon_services/{service}.service"], check=True)
             subprocess.run(["sudo", "systemctl", "start", service], check=True)
             if check_service_status(service):
+                log_message("info", f"200 OK Successfully started {service}")
                 print(f"Successfully started {service}")
             else:
+                log_message("error", f"Failed to start {service}")
                 print(f"Failed to start {service}")
     old_services = copy.deepcopy(new_services)
 
@@ -103,6 +110,7 @@ def remove_old_services():
             python_file_path = f"/home/dasha/wotiwan/orchestrator/daemons/{service}.py"
             if os.path.exists(python_file_path):
                 os.remove(python_file_path)
+            log_message("info", f"200 OK Stopped and removed {service}")
             print(f"Stopped and removed {service}")
     old_services = copy.deepcopy(new_services)
 
@@ -117,6 +125,7 @@ elif user_action == "2":
 elif user_action == "3":
     check_all_services()
 else:
+    log_message("error", "Incorrect input!")
     print("Incorrect input!")
 
 while True:
