@@ -5,6 +5,7 @@ import requests
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(current_dir, '../log'))
+from log import log_message
 
 message_timer = None
 
@@ -42,20 +43,20 @@ def get_receivers():
             log_message("error", f"Failed to get receivers: {response.text}")
             return []
     except Exception as e:
-        log_message("error",f"Error occurred while fetching receivers: {e}")
+        log_message("error",f"Error occurred while fetching receivers: {e}", "subscriber.py")
         print(f"Error occurred while fetching receivers: {e}")
         return []
 
 if __name__ == "__main__":
-    log_message("info", "200 OK")
+    log_message("info", "200 OK", "subscriber.py")
     get_receivers_choice = input("Do you want to get the list of receivers? (yes/no): ").strip().lower()
     if get_receivers_choice == 'yes':
         receivers = get_receivers()
         if receivers:
-            log_message("info", "200 OK Get available receivers")
+            log_message("info", "200 OK Get available receivers", "subscriber.py")
             print(f"Available receivers: {', '.join(receivers)}")
         else:
-            log_message("error", "No receivers found or failed to fetch receivers")
+            log_message("error", "No receivers found or failed to fetch receivers", "subscriber.py")
             print("No receivers found or failed to fetch receivers.")
 
     user_input = input("Enter the topics you want to subscribe to, separated by commas: ")
@@ -65,14 +66,14 @@ if __name__ == "__main__":
         url = "http://localhost:8010/subscribe/"
         response = requests.post(url, json={"topics": topics})
         if response.status_code == 200:
-            log_message("info", f"200 OK Subscribed to topics via HTTP: {topics}")
+            log_message("info", f"200 OK Subscribed to topics via HTTP: {topics}", "subscriber.py")
             print(f"Subscribed to topics via HTTP: {topics}")
         else:
-            log_message("error", f"Failed to subscribe via HTTP: {response.text}")
+            log_message("error", f"Failed to subscribe via HTTP: {response.text}", "subscriber.py")
             print(f"Failed to subscribe via HTTP: {response.text}")
 
         subscribe_to_topics(topics)
 
     except Exception as e:
-        log_message("error", f"Error occurred: {e}")
+        log_message("error", f"Error occurred: {e}", "subscriber.py")
         print(f"Error occurred: {e}")
