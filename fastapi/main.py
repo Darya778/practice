@@ -2,6 +2,7 @@ import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(current_dir, '../log'))
+from log import log_message
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
