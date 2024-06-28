@@ -19,12 +19,12 @@ async def subscribe(request: SubscriptionRequest):
     global subscriptions
     subscriptions.extend(request.topics)
     subscriptions = list(set(subscriptions))
-    log_message("info", "200 OK Subscribed to topics")
+    log_message("info", "200 OK Subscribed to topics", "fastapi/main.py")
     return {"message": "Subscribed to topics", "topics": subscriptions}
 
 @app.get("/subscriptions/")
 async def get_subscriptions():
-    log_message("info", "200 OK Get subscriptions")
+    log_message("info", "200 OK Get subscriptions", "fastapi/main.py")
     return {"subscriptions": subscriptions}
 
 @app.get("/receivers/")
@@ -33,10 +33,10 @@ async def get_receivers():
     try:
         with open(file_path, "r") as file:
             receivers = [line.strip() for line in file.readlines()]
-            log_message("info", "200 OK Get receivers")
+            log_message("info", "200 OK Get receivers", "fastapi/main.py")
         return {"receivers": receivers}
     except FileNotFoundError:
-        log_message("error", "404 - Receivers file not found")
+        log_message("error", "404 - Receivers file not found", "fastapi/main.py")
         return {"error": "Receivers file not found"}, 404
 
 if __name__ == "__main__":
