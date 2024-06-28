@@ -14,17 +14,23 @@ handler = logging.FileHandler(log_file)
 handler.setFormatter(ecs_logging.StdlibFormatter())
 logger.addHandler(handler)
 
-def log_message(method, message):
+def log_message(method, message, file_name=None):
     """
     Функция для вызова метода логгера.
 
     Args:
         method: Метод логгера (info, warning, error, critical).
         message: Сообщение для записи в лог.
+        file_name: Имя файла, которое нужно добавить в лог.
     """
 
     # Получение атрибута метода логгера по имени
     log_method = getattr(logger, method)
 
+    # Формирование сообщения с информацией о времени и файле
+    log_message = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {message}"
+    if file_name:
+        log_message += f" (файл: {file_name})"
+    
     # Вызов метода логгера
     log_method(message, extra={"http.request.body.content": message})
