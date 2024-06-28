@@ -130,6 +130,21 @@ def create_directory_structure():
                     shutil.move(os.path.join(root, file), os.path.join(site_dir, file))
         log_message("info", "200 OK Все файлы распределены по папкам.")
 
+
+def get_first_level_directories(time_dif):
+    try:
+        date = (datetime.now() - timedelta(days=6-time_dif)).strftime('%Y-%m-%d')
+        day_of_year = datetime.strptime(date, '%Y-%m-%d').timetuple().tm_yday
+        directory_path = f"/home/dasha/wotiwan/archive/2024/{day_of_year}"
+        entries = os.listdir(directory_path)
+        directories = [entry for entry in entries if os.path.isdir(os.path.join(directory_pa>
+        return directories
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        log_message("error", "Ошибка: {e}")
+        return []
+
+                                                                                
 def main():
     path = download()
     unpack_archive(path)
