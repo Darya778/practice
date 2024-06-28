@@ -1,6 +1,7 @@
 import subprocess
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(1, os.path.join(current_dir, '../log'))
+from log import log_message
 import os
 import time
 import copy
@@ -49,9 +50,9 @@ def start_services():
         subprocess.run(["sudo", "systemctl", "start", service], check=True)
         if check_service_status(service):
             print(f"Successfully started {service}")
-            log_message("info", f"200 OK Successfully started {service}")
+            log_message("info", f"200 OK Successfully started {service}", "orchestrator.py")
         else:
-            log_message("error", f"Failed to start {service}")
+            log_message("error", f"Failed to start {service}", "orchestrator.py")
             print(f"Failed to start {service}")
         time.sleep(2)
 
@@ -65,16 +66,16 @@ def stop_services():
         python_file_path = f"/home/dasha/wotiwan/orchestrator/daemons/{service}.py"
         if os.path.exists(python_file_path):
             os.remove(python_file_path)
-        log_message("info", f"200 OK Stopped and removed {service}")
+        log_message("info", f"200 OK Stopped and removed {service}", "orchestrator.py")
         print(f"Stopped and removed {service}")
 
 def check_all_services():
     for service in services:
         if check_service_status(service):
             print(f"Service {service} is running")
-            log_message("info", f"200 OK Service {service} is running")
+            log_message("info", f"200 OK Service {service} is running", "orchestrator.py")
         else:
-            log_message("warning", f"Service {service} is stopped!")
+            log_message("warning", f"Service {service} is stopped!", "orchestrator.py")
             print(f"Service {service} is stopped!")
 
 def update_services():
@@ -89,10 +90,10 @@ def update_services():
             subprocess.run(["sudo", "systemctl", "enable", f"/home/dasha/wotiwan/orchestrator/daemon_services/{service}.service"], check=True)
             subprocess.run(["sudo", "systemctl", "start", service], check=True)
             if check_service_status(service):
-                log_message("info", f"200 OK Successfully started {service}")
+                log_message("info", f"200 OK Successfully started {service}", "orchestrator.py")
                 print(f"Successfully started {service}")
             else:
-                log_message("error", f"Failed to start {service}")
+                log_message("error", f"Failed to start {service}", "orchestrator.py")
                 print(f"Failed to start {service}")
     old_services = copy.deepcopy(new_services)
 
@@ -110,7 +111,7 @@ def remove_old_services():
             python_file_path = f"/home/dasha/wotiwan/orchestrator/daemons/{service}.py"
             if os.path.exists(python_file_path):
                 os.remove(python_file_path)
-            log_message("info", f"200 OK Stopped and removed {service}")
+            log_message("info", f"200 OK Stopped and removed {service}", "orchestrator.py")
             print(f"Stopped and removed {service}")
     old_services = copy.deepcopy(new_services)
 
@@ -125,7 +126,7 @@ elif user_action == "2":
 elif user_action == "3":
     check_all_services()
 else:
-    log_message("error", "Incorrect input!")
+    log_message("error", "Incorrect input!", "orchestrator.py")
     print("Incorrect input!")
 
 while True:
