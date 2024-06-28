@@ -2,6 +2,7 @@ import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(file))
 sys.path.insert(1, os.path.join(current_dir, '../../log'))
+from log import log_message
 import time
 from datetime import datetime, timedelta
 import schedule
@@ -17,10 +18,10 @@ def get_first_level_directories(time_dif):
 
         directories = [entry for entry in entries if os.path.isdir(os.path.join(directory_path, entry))]
 
-        log_message("info", "200 OK Get directories.")
+        log_message("info", "200 OK Get directories.", "orchestrator/parser/parser.py")
         return directories
     except Exception as e:
-        log_message("error", f"Error: {e}")
+        log_message("error", f"Error: {e}", "orchestrator/parser/parser.py")
         print(f"Error: {e}")
         return []
 
@@ -32,7 +33,7 @@ def write_directories_to_file(directories):
             for directory in directories:
                 file.write(directory + '\n')
     except Exception as e:
-        log_message("error", f"Error writing to file: {e}")
+        log_message("error", f"Error writing to file: {e}", "orchestrator/parser/parser.py")
         print(f"Error writing to file: {e}")
 
 
